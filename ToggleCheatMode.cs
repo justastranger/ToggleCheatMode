@@ -143,7 +143,12 @@ namespace ToggleCheatMode
         public static void Postfix(LoadingScreen __instance)
         {
             ToggleCheatMode.Logger.LogDebug("Postfix Triggered");
-            // this check will run once upon reaching the main menu
+            // Return right away if there isn't a game loaded (this function runs once at the main menu)
+            if (NetworkMapSharer.Instance.localChar == null)
+            {
+                return;
+            }
+            // Don't allow this mod's functionality in multiplayer
             if (!NetworkPlayersManager.manage.IsPlayingSinglePlayer)
             {
                 ToggleCheatMode.Logger.LogMessage("This mod will not work in multiplayer out of respect for the Dinkum team's policy on cheating.");
