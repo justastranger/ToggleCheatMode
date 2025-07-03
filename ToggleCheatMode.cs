@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 
 namespace ToggleCheatMode
 {
-    [BepInPlugin("jas.ToggleCheatMode", "Toggle Cheat Mode", "0.1")]
+    [BepInPlugin("jas.ToggleCheatMode", "Toggle Cheat Mode", "1.0.0")]
     public class ToggleCheatMode : BaseUnityPlugin
     {
         internal static new ManualLogSource Logger;
