@@ -42,23 +42,23 @@ namespace ToggleCheatMode
 
         private void OnChangeMapsListener()
         {
-            Logger.LogMessage("Map Changed");
+            Logger.LogDebug("Map Changed");
             // don't allow this mod to work in multiplayer
             if (!NetworkPlayersManager.manage.IsPlayingSinglePlayer)
             {
-                Logger.LogMessage("MULTIPLAYER DETECTED, ABORTING");
+                Logger.LogWarning("MULTIPLAYER DETECTED, ABORTING");
                 CreativeEnabled = false;
                 CreativeChecked = false;
                 return;
             }
             if (NetworkMapSharer.Instance.creativeAllowed)
             {
-                Logger.LogMessage("Creative Mode Detected");
+                Logger.LogDebug("Creative Mode Detected");
                 CreativeEnabled = true;
             }
             else
             {
-                Logger.LogMessage("Creative Mode Not Detected");
+                Logger.LogDebug("Creative Mode Not Detected");
                 CreativeEnabled = false;
             }
             CreativeChecked = true;
@@ -142,11 +142,11 @@ namespace ToggleCheatMode
 
         public static void Postfix(LoadingScreen __instance)
         {
-            ToggleCheatMode.Logger.LogMessage("Postfix Triggered");
-            // FieldInfo loadingWindowForMultiplayer = AccessTools.Field(typeof(LoadGameWindow), "loadingWindowForMultiplayer");
+            ToggleCheatMode.Logger.LogDebug("Postfix Triggered");
+            // this check will run once upon reaching the main menu
             if (!NetworkPlayersManager.manage.IsPlayingSinglePlayer)
             {
-                ToggleCheatMode.Logger.LogWarning("This mod will not work in multiplayer out of respect for the Dinkum team's policy on cheating.");
+                ToggleCheatMode.Logger.LogMessage("This mod will not work in multiplayer out of respect for the Dinkum team's policy on cheating.");
                 ToggleCheatMode.CreativeChecked = false;
                 return;
             }
