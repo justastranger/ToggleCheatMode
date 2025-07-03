@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace ToggleCheatMode
 {
@@ -25,9 +26,9 @@ namespace ToggleCheatMode
         internal static FieldInfo creativeMenuOpen = AccessTools.Field(typeof(CreativeManager), "creativeMenuOpen");
         internal static FieldInfo sortedIds = AccessTools.Field(typeof(CreativeManager), "sortedIds");
         internal static FieldInfo spawnableAnimals = AccessTools.Field(typeof(CreativeManager), "spawnableAnimals");
-        internal static FieldInfo allButtons = AccessTools.Field(typeof(CreativeManager), "allButtons");
-        internal static FieldInfo pageButtons = AccessTools.Field(typeof(CreativeManager), "pageButtons");
-        internal static MethodInfo RunCreativeMode = AccessTools.Method(typeof(CreativeManager), "RunCreativeMode");
+        internal static FieldInfo allButtonsField = AccessTools.Field(typeof(CreativeManager), "allButtons");
+        internal static FieldInfo pageButtonsField = AccessTools.Field(typeof(CreativeManager), "pageButtons");
+        internal static FieldInfo isMinamised = AccessTools.Field(typeof(CreativeManager), "isMinamised");
         internal static Harmony harmony = new Harmony("jas.Dinkum.ToggleCheatMode");
 
         private void Awake()
@@ -82,6 +83,8 @@ namespace ToggleCheatMode
                     PlayerPrefs.SetInt("DevCommandOn", 1);
                     PlayerPrefs.SetInt("Cheats", 1);
                     CreativeEnabled = true;
+                    // set to false because StartCreativeMode flips it to true
+                    isMinamised.SetValue(CreativeManager.instance, false);
                     CreativeManager.instance.StartCreativeMode();
                 }
                 else
@@ -99,22 +102,34 @@ namespace ToggleCheatMode
 
                     ((List<int>)sortedIds.GetValue(CreativeManager.instance)).Clear();
                     ((List<int>)spawnableAnimals.GetValue(CreativeManager.instance)).Clear();
-                    ((List<CheatMenuButton>)allButtons.GetValue(CreativeManager.instance)).Clear();
-                    ((List<CreativePageButton>)pageButtons.GetValue(CreativeManager.instance)).Clear();
+                    ((List<CheatMenuButton>)allButtonsField.GetValue(CreativeManager.instance)).Clear();
+                    ((List<CreativePageButton>)pageButtonsField.GetValue(CreativeManager.instance)).Clear();
 
-                    GameObject creativeWindow = GameObject.Find("CreativeWindow");
-                    Transform itemWindow = creativeWindow?.transform.Find("ItemWindow");
-                    Transform buttons = itemWindow?.Find("Buttons");
-                    if (buttons == null)
+                    var roots = SceneManager.GetActiveScene().GetRootGameObjects();
+                    Transform creativeWindow = null;
+                    foreach (var root in roots)
                     {
-                        Logger.LogWarning("Failed to retrieve creative buttons!");
+                        creativeWindow = root.transform.Find("CreativeWindow");
+                        if (creativeWindow != null) break;
+                    }
+                    if (creativeWindow != null)
+                    {
+                        Transform buttons = creativeWindow?.Find("ItemWindow/Buttons");
+                        if (buttons == null)
+                        {
+                            Logger.LogWarning("Failed to retrieve creative buttons!");
+                        }
+                        else
+                        {
+                            foreach (Transform child in buttons)
+                            {
+                                Destroy(child.gameObject);
+                            }
+                        }
                     }
                     else
                     {
-                        foreach (Transform child in buttons)
-                        {
-                            GameObject.Destroy(child.gameObject);
-                        }
+                        Logger.LogWarning("Failed to retrieve CreativeWindow!");
                     }
                 }
             }
